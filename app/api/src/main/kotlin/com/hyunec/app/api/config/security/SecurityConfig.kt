@@ -27,6 +27,7 @@ class SecurityConfig(
 ) {
     companion object : KLogging() {
         private val ROLE_USER = User.Role.ROLE_USER.name.removePrefix("ROLE_")
+        private val ROLE_ADMIN = User.Role.ROLE_ADMIN.name.removePrefix("ROLE_")
     }
 
     @Bean
@@ -42,10 +43,13 @@ class SecurityConfig(
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                 // 인증, 인가
-                .requestMatchers("/api/v1/auth/**").permitAll()
+                .requestMatchers("/api/v?/auth/**").permitAll()
 
                 // chat completion
-                .requestMatchers("/api/v1/chat/completion/**").hasAnyRole(ROLE_USER)
+                .requestMatchers("/api/v?/chat/completion/**").hasAnyRole(ROLE_USER)
+
+                // admin api 는 별도로 구현
+                .requestMatchers("/admin/**").hasRole(ROLE_ADMIN)
 
                 .anyRequest().permitAll()
         }

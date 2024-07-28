@@ -32,7 +32,7 @@ class ScenarioTest(
     @CsvSource(
         "testuser@example.com, pppassword, Test User",
     )
-    fun `1) 회원 가입`(email: String, password: String, name: String) {
+    fun `A1) 회원 가입`(email: String, password: String, name: String) {
         mockMvc.perform(
             post("/api/v1/auth/signup")
                 .contentType("application/json")
@@ -52,9 +52,37 @@ class ScenarioTest(
         user.name shouldBe name
     }
 
+    @ParameterizedTest
+    @CsvSource(
+        "testuser@example.com, pppassword, Test User",
+    )
+    fun `A2) 회원 로그인`(email: String, password: String, name: String) {
+        val response = mockMvc.perform(
+            post("/api/v1/auth/signin")
+                .contentType("application/json")
+                .content(
+                    objectMapper.writeValueAsString(
+                        mapOf(
+                            "userId" to email,
+                            "password" to password,
+                        )
+                    )
+                )
+        ).andExpect(status().isOk)
+            .andReturn()
+            .run {
+                this.response.characterEncoding = "UTF-8"
+                this.response.contentAsString
+            }
+
+        log.debug("### result: $response")
+
+        response.length shouldBeGreaterThan 0
+    }
+
     @WithMockUser(username = "testuser@example.com", password = "pppassword", roles = ["USER"])
     @Test
-    fun `10) chat completion`() {
+    fun `E1) chat completion`() {
         val response = mockMvc.perform(
             post("/api/v1/chat/completion")
                 .contentType("application/json")
@@ -88,7 +116,7 @@ class ScenarioTest(
 
     @WithMockUser(username = "testuser@example.com", password = "pppassword", roles = ["USER"])
     @Test
-    fun `11) chat completion - model 제외`() {
+    fun `E2) chat completion - model 제외`() {
         val response = mockMvc.perform(
             post("/api/v1/chat/completion")
                 .contentType("application/json")
