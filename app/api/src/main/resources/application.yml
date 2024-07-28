@@ -7,13 +7,17 @@ logging:
         root: INFO
         com.hyunec: DEBUG
 
+jwt:
+    secret: ${JWT_SECRET:b3VyLWNsYXNzLWJhbmstYmFja2VuZF9vdXItY2xhc3MtYmFuay1iYWNrZW5k} # todo 환경 변수로 분리
+    valid-time: ${JWT_VALID_TIME:1800000}
+
 ---
 spring.config.activate.on-profile: test
 
 spring:
     ai:
         openai:
-            api-key: dummy
+            api-key: fill_in_your_openai_api_key_here
 
 ---
 spring.config.activate.on-profile: local
