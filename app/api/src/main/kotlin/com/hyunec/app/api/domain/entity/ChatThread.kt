@@ -1,4 +1,4 @@
-package com.hyunec.app.api.persistence.entity
+package com.hyunec.app.api.domain.entity
 
 import com.hyunec.common.util.id.UlidGenerator
 import java.time.Instant
@@ -9,8 +9,10 @@ data class ChatThread(
 
     val chatData: MutableList<ChatData> = mutableListOf(),
 ) {
-    val startMessageAt: Instant = chatData.first().createdAt
-    val lastMessageAt: Instant = chatData.last().createdAt
+    val startMessageAt: Instant
+        get() = chatData.first().createdAt
+    val lastMessageAt: Instant
+        get() = chatData.last().createdAt
 
     fun add(chatData: ChatData) {
         this.chatData.add(chatData)

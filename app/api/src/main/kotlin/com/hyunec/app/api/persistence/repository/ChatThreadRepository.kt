@@ -1,6 +1,6 @@
 package com.hyunec.app.api.persistence.repository
 
-import com.hyunec.app.api.persistence.entity.ChatThread
+import com.hyunec.app.api.domain.entity.ChatThread
 import org.springframework.stereotype.Repository
 import java.util.concurrent.ConcurrentHashMap
 
@@ -19,5 +19,9 @@ class ChatThreadRepository(
 
     fun findByUserId(userId: String): ChatThread? {
         return pool.filter { it.value.userId == userId }.values.firstOrNull()
+    }
+
+    fun findAll(): List<ChatThread> {
+        return pool.values.toList()
     }
 }

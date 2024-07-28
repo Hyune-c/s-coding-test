@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.hyunec.app.api.BaseSupport
 import com.hyunec.app.api.persistence.repository.ChatThreadRepository
 import io.kotest.matchers.ints.shouldBeGreaterThan
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
@@ -23,14 +24,14 @@ class ScenarioTest(
 ) : BaseSupport() {
 
     @Test
-    fun `chat completion`() {
+    fun `1) chat completion`() {
         val response = mockMvc.perform(
             post("/api/v1/chat/completion")
                 .contentType("application/json")
                 .content(
                     objectMapper.writeValueAsString(
                         mapOf(
-                            "message" to "안녕이라고만 말해줘",
+                            "message" to "1 + 5 는?",
                             "model" to "gpt-3.5-turbo",
                         )
                     )
@@ -48,21 +49,22 @@ class ScenarioTest(
         response.length shouldBeGreaterThan 0
 
         val userId = "1"
-        val chatThread = chatThreadRepository.findByUserId(userId)
+        val chatThread = chatThreadRepository.findByUserId(userId)!!
         chatThread shouldNotBe null
 
         log.debug("### chatThread: $chatThread")
+        chatThread.startMessageAt shouldBe chatThread.lastMessageAt
     }
 
     @Test
-    fun `chat completion - model 제외`() {
+    fun `2) chat completion - model 제외`() {
         val response = mockMvc.perform(
             post("/api/v1/chat/completion")
                 .contentType("application/json")
                 .content(
                     objectMapper.writeValueAsString(
                         mapOf(
-                            "message" to "안녕이라고만 말해줘",
+                            "message" to "방금 알려준 답에 +5 해줘",
                         )
                     )
                 )
@@ -77,5 +79,12 @@ class ScenarioTest(
         log.debug("### result: $response")
 
         response.length shouldBeGreaterThan 0
+
+        val userId = "1"
+        val chatThread = chatThreadRepository.findByUserId(userId)!!
+        chatThread shouldNotBe null
+
+        log.debug("### chatThread: $chatThread")
+        chatThread.startMessageAt shouldNotBe chatThread.lastMessageAt
     }
 }

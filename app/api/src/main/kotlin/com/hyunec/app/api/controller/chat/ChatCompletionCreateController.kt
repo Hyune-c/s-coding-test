@@ -14,7 +14,7 @@ class ChatCompletionCreateController(
     fun create(@RequestBody request: Request): Response {
         val chatResponse = chatCompletionService.call(
             request.message,
-            request.model
+            request.model ?: "gpt-3.5-turbo"
         )
 
         log.debug("### chatResponse: {}", chatResponse)
