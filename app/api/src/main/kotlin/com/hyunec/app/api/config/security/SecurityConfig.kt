@@ -47,7 +47,7 @@ class SecurityConfig(
                 // chat completion
                 .requestMatchers("/api/v1/chat/completion/**").hasAnyRole(ROLE_USER)
 
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
         }
             .csrf { it.disable() }
             .cors { it.disable() }

@@ -3,12 +3,15 @@ package com.hyunec.app.api.scenario
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.hyunec.app.api.BaseSupport
 import com.hyunec.app.api.persistence.repository.ChatThreadRepository
+import com.hyunec.app.api.persistence.repository.UserRepository
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
@@ -21,12 +24,37 @@ class ScenarioTest(
     private val mockMvc: MockMvc,
     private val objectMapper: ObjectMapper,
 
-    private val chatThreadRepository: ChatThreadRepository
+    private val userRepository: UserRepository,
+    private val chatThreadRepository: ChatThreadRepository,
 ) : BaseSupport() {
+
+    @ParameterizedTest
+    @CsvSource(
+        "testuser@example.com, pppassword, Test User",
+    )
+    fun `1) 회원 가입`(email: String, password: String, name: String) {
+        mockMvc.perform(
+            post("/api/v1/auth/signup")
+                .contentType("application/json")
+                .content(
+                    objectMapper.writeValueAsString(
+                        mapOf(
+                            "email" to email,
+                            "password" to password,
+                            "name" to name
+                        )
+                    )
+                )
+        )
+
+        val user = userRepository.findByEmail(email)!!
+        user.email shouldBe email
+        user.name shouldBe name
+    }
 
     @WithMockUser(username = "testuser@example.com", password = "pppassword", roles = ["USER"])
     @Test
-    fun `1) chat completion`() {
+    fun `10) chat completion`() {
         val response = mockMvc.perform(
             post("/api/v1/chat/completion")
                 .contentType("application/json")
@@ -60,7 +88,7 @@ class ScenarioTest(
 
     @WithMockUser(username = "testuser@example.com", password = "pppassword", roles = ["USER"])
     @Test
-    fun `2) chat completion - model 제외`() {
+    fun `11) chat completion - model 제외`() {
         val response = mockMvc.perform(
             post("/api/v1/chat/completion")
                 .contentType("application/json")
