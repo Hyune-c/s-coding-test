@@ -16,6 +16,7 @@ import org.junit.jupiter.params.provider.CsvSource
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.Duration
@@ -182,6 +183,24 @@ class ScenarioTest(
 
         log.debug("### chatThread: $chatThread")
         chatThread.startMessageAt shouldNotBe chatThread.lastMessageAt
+    }
+
+    @WithMockUser(username = "testuser@example.com", password = "pppassword", roles = ["USER"])
+    @Test
+    fun `E3) chat completion - 앞선 3개의 대화가 조회된다`() {
+        val response = mockMvc.perform(
+            get("/api/v1/chat/completion")
+        )
+            .andExpect(status().isOk)
+            .andReturn()
+            .run {
+                this.response.characterEncoding = "UTF-8"
+                this.response.contentAsString
+            }
+
+        log.debug("### result: $response")
+
+        response.length shouldBeGreaterThan 0
     }
 
     @WithMockUser(username = "testuser@example.com", password = "pppassword", roles = ["USER"])
