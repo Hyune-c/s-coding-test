@@ -10,8 +10,18 @@ logging:
 ---
 spring.config.activate.on-profile: test
 
+spring:
+    ai:
+        openai:
+            api-key: dummy
+
 ---
 spring.config.activate.on-profile: local
+
+spring:
+    ai:
+        openai:
+            api-key: ${OPENAI_API_KEY}
 
 ---
 spring.config.activate.on-profile: dev
