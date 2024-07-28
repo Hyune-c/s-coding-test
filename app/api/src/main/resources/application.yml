@@ -1,0 +1,21 @@
+spring:
+    profiles:
+        default: local
+
+logging:
+    level:
+        root: INFO
+        com.hyunec: DEBUG
+
+---
+spring.config.activate.on-profile: test
+
+---
+spring.config.activate.on-profile: local
+
+---
+spring.config.activate.on-profile: dev
+
+---
+spring.config.activate.on-profile: prod
+

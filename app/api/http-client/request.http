@@ -1,0 +1,36 @@
+### 1. 회원 가입 API
+POST {{host}}/user/signup
+Content-Type: application/json
+
+{
+  "userId": "sample@gmail.com",
+  "password": "Qq09iu!@1238798",
+  "name": "테스",
+  "idType": "REG_NO",
+  "idValue": "001123-3111111"
+}
+
+### 2. 로그인 API
+POST {{host}}//user/login
+Content-Type: application/json
+
+{
+  "userId": "sample@gmail.com",
+  "password": "Qq09iu!@1238798"
+}
+
+> {%
+
+ client.global.set("token", response.body.token)
+
+%}
+
+### 3. 송금 견적서 생성
+POST {{host}}//transfer/quote
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "amount": 10000,
+  "targetCurrency": "JPY"
+}
