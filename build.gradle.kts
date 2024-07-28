@@ -74,6 +74,8 @@ subprojects {
         testImplementation("net.datafaker:datafaker:$datafakerVersion")
 
         testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+        testImplementation("io.projectreactor:reactor-test")
     }
 
     tasks.withType<KotlinCompile> {

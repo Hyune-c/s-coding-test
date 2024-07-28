@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.hyunec.app.api.BaseSupport
 import com.hyunec.app.api.persistence.repository.ChatThreadRepository
 import com.hyunec.app.api.persistence.repository.UserRepository
+import com.hyunec.app.api.service.ChatCompletionStreamService
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -17,6 +18,7 @@ import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.time.Duration
 
 @TestMethodOrder(MethodOrderer.DisplayName::class)
 @AutoConfigureMockMvc
@@ -26,6 +28,8 @@ class ScenarioTest(
 
     private val userRepository: UserRepository,
     private val chatThreadRepository: ChatThreadRepository,
+
+    private val chatCompletionStreamService: ChatCompletionStreamService
 ) : BaseSupport() {
 
     @ParameterizedTest
@@ -145,5 +149,31 @@ class ScenarioTest(
 
         log.debug("### chatThread: $chatThread")
         chatThread.startMessageAt shouldNotBe chatThread.lastMessageAt
+    }
+
+    @WithMockUser(username = "testuser@example.com", password = "pppassword", roles = ["USER"])
+    @Test
+    fun `H1) chat completion stream`() {
+        val flux = chatCompletionStreamService.call("1 + 5 는?", "gpt-3.5-turbo")
+
+        try {
+            flux.timeout(Duration.ofSeconds(5))
+                .toIterable()
+                .forEach { element ->
+                    log.info("### flux element: $element")
+                }
+        } catch (e: Exception) {
+            log.error("### flux did not complete within the timeout")
+        }
+
+        // todo: StepVerifier 사용
+//        StepVerifier.create(flux)
+//            .expectNextMatches { element ->
+//                log.debug("### flux element: $element")
+//                true
+//            }
+//            .thenAwait(Duration.ofSeconds(5))
+//            .expectComplete()
+//            .verify()
     }
 }
