@@ -7,6 +7,7 @@ import org.springframework.ai.chat.model.ChatResponse
 import org.springframework.ai.chat.prompt.Prompt
 import org.springframework.ai.openai.OpenAiChatModel
 import org.springframework.ai.openai.OpenAiChatOptions
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 
 @Service
@@ -93,8 +94,7 @@ class ChatCompletionService(
         return chatResponse
     }
 
-    // todo
     private fun getUserid(): String {
-        return "1"
+        return SecurityContextHolder.getContext().authentication.name
     }
 }

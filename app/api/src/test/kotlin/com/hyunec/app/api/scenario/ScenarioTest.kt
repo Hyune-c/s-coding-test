@@ -10,6 +10,7 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -23,6 +24,7 @@ class ScenarioTest(
     private val chatThreadRepository: ChatThreadRepository
 ) : BaseSupport() {
 
+    @WithMockUser(username = "testuser@example.com", password = "pppassword", roles = ["USER"])
     @Test
     fun `1) chat completion`() {
         val response = mockMvc.perform(
@@ -48,7 +50,7 @@ class ScenarioTest(
 
         response.length shouldBeGreaterThan 0
 
-        val userId = "1"
+        val userId = "testuser@example.com"
         val chatThread = chatThreadRepository.findByUserId(userId)!!
         chatThread shouldNotBe null
 
@@ -56,6 +58,7 @@ class ScenarioTest(
         chatThread.startMessageAt shouldBe chatThread.lastMessageAt
     }
 
+    @WithMockUser(username = "testuser@example.com", password = "pppassword", roles = ["USER"])
     @Test
     fun `2) chat completion - model 제외`() {
         val response = mockMvc.perform(
@@ -80,7 +83,7 @@ class ScenarioTest(
 
         response.length shouldBeGreaterThan 0
 
-        val userId = "1"
+        val userId = "testuser@example.com"
         val chatThread = chatThreadRepository.findByUserId(userId)!!
         chatThread shouldNotBe null
 
