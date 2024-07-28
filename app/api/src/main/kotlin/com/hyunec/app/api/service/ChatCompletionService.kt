@@ -9,6 +9,8 @@ import org.springframework.ai.openai.OpenAiChatModel
 import org.springframework.ai.openai.OpenAiChatOptions
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 @Service
 class ChatCompletionService(
@@ -33,9 +35,11 @@ class ChatCompletionService(
         model: String
     ): ChatResponse {
         // chatMessage 생성
-        val chatMessages = chatThread.chatData.map {
-            UserMessage("question" + ": " + it.question + "\n" + "answer" + ": " + it.answer)
-        }.toMutableList().apply { add(UserMessage("question: $message")) }
+        // - chatData 의 생성 시간이 지금부터 30분 이내인 것만
+        val chatMessages = chatThread.chatData
+            .filter { ChronoUnit.MINUTES.between(it.createdAt, Instant.now()) <= 30 }
+            .map { UserMessage("question" + ": " + it.question + "\n" + "answer" + ": " + it.answer) }
+            .toMutableList().apply { add(UserMessage("question: $message")) }
 
         // open ai 호출
         val chatResponse = chatModel.call(
