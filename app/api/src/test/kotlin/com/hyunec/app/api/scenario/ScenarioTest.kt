@@ -153,6 +153,39 @@ class ScenarioTest(
 
     @WithMockUser(username = "testuser@example.com", password = "pppassword", roles = ["USER"])
     @Test
+    fun `E3) chat completion - 앞선 2개 대화가 이어진다`() {
+        val response = mockMvc.perform(
+            post("/api/v1/chat/completion")
+                .contentType("application/json")
+                .content(
+                    objectMapper.writeValueAsString(
+                        mapOf(
+                            "message" to "방금 알려준 답에 +10 해줘",
+                        )
+                    )
+                )
+        )
+            .andExpect(status().isOk)
+            .andReturn()
+            .run {
+                this.response.characterEncoding = "UTF-8"
+                this.response.contentAsString
+            }
+
+        log.debug("### result: $response")
+
+        response.length shouldBeGreaterThan 0
+
+        val userId = "testuser@example.com"
+        val chatThread = chatThreadRepository.findByUserId(userId)!!
+        chatThread shouldNotBe null
+
+        log.debug("### chatThread: $chatThread")
+        chatThread.startMessageAt shouldNotBe chatThread.lastMessageAt
+    }
+
+    @WithMockUser(username = "testuser@example.com", password = "pppassword", roles = ["USER"])
+    @Test
     fun `H1) chat completion stream`() {
         val flux = chatCompletionStreamService.call("1 + 5 는?", "gpt-3.5-turbo")
 
