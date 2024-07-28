@@ -1,6 +1,6 @@
 package com.hyunec.app.api.controller.chat
 
-import com.hyunec.app.api.service.chat.ChatCompletionService
+import com.hyunec.app.api.service.ChatCompletionService
 import com.hyunec.common.util.KLogging
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody

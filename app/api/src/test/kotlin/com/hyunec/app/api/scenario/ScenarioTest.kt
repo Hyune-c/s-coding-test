@@ -2,6 +2,9 @@ package com.hyunec.app.api.scenario
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.hyunec.app.api.BaseSupport
+import com.hyunec.app.api.persistence.repository.ChatThreadRepository
+import io.kotest.matchers.ints.shouldBeGreaterThan
+import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
@@ -15,17 +18,19 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 class ScenarioTest(
     private val mockMvc: MockMvc,
     private val objectMapper: ObjectMapper,
+
+    private val chatThreadRepository: ChatThreadRepository
 ) : BaseSupport() {
 
     @Test
-    fun `대화 시작`() {
+    fun `chat completion`() {
         val response = mockMvc.perform(
             post("/api/v1/chat/completion")
                 .contentType("application/json")
                 .content(
                     objectMapper.writeValueAsString(
                         mapOf(
-                            "message" to "한국에서 제일 높은 산 3개 이름만 말해줘",
+                            "message" to "안녕이라고만 말해줘",
                             "model" to "gpt-3.5-turbo",
                         )
                     )
@@ -37,6 +42,40 @@ class ScenarioTest(
                 this.response.characterEncoding = "UTF-8"
                 this.response.contentAsString
             }
+
         log.debug("### result: $response")
+
+        response.length shouldBeGreaterThan 0
+
+        val userId = "1"
+        val chatThread = chatThreadRepository.findByUserId(userId)
+        chatThread shouldNotBe null
+
+        log.debug("### chatThread: $chatThread")
+    }
+
+    @Test
+    fun `chat completion - model 제외`() {
+        val response = mockMvc.perform(
+            post("/api/v1/chat/completion")
+                .contentType("application/json")
+                .content(
+                    objectMapper.writeValueAsString(
+                        mapOf(
+                            "message" to "안녕이라고만 말해줘",
+                        )
+                    )
+                )
+        )
+            .andExpect(status().isOk)
+            .andReturn()
+            .run {
+                this.response.characterEncoding = "UTF-8"
+                this.response.contentAsString
+            }
+
+        log.debug("### result: $response")
+
+        response.length shouldBeGreaterThan 0
     }
 }
